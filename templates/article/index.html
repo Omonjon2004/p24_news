@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load static %}
+
+<!-- END navigation -->
+<!-- BEGIN wrapper -->
+{% block content %}
+    <div class="wrapper">
+        <!-- BEGIN header -->
+        <div id="header">
+            <h1><a href="#">NewsTheme</a></h1>
+{#            <div class="ad468x60"><a href="#"><img src="{% static 'images/ad468x60.gif' %}" alt=""/></a></div>#}
+        </div>
+        <!-- END header -->
+        <!--    base.html ga olish kerak -->
+        <!-- BEGIN body -->
+        <div id="body">
+            <!-- BEGIN content -->
+            <div id="content">
+                <!-- begin recent post -->
+                <div class="recent post">
+                    <h2 class="title">Recent News</h2>
+                    <h5><a href="{% url 'article:article-detail' slug=article.slug %}">{{ article.title }}</a></h5>
+                    <p>{{ article.body|safe    }}</p>
+                </div>
+                <!-- end recent post -->
+                <div class="posts">
+                    <!-- begin post -->
+                    {% for arct in articles %}
+                        <div class="post">
+                            <p class="date">{{ arct.published_at }}</p>
+                            <h6>
+                                <a href="{% url 'article:article-detail' slug=arct.slug %}">{{ arct.title|truncatewords:6 }}</a>
+                            </h6>
+                            <p>{{ arct.body|safe | truncatewords:20 }}</p>
+                            <div class="details"><a href="{% url 'article:article-detail' slug=arct.slug %}">READ
+                                MORE</a> <a
+                                    href="{% url 'article:article-detail' slug=arct.slug %}">{{ arct.comments.count }}
+                                Comments</a></div>
+                        </div>
+                    {% endfor %}
+
+                    <div class="break"></div>
+                </div>
+            </div>
+            <!-- END content -->
+            <!-- BEGIN sidebar -->
+            {% include 'article/../sidebar.html' %}
+        </div>
+        <!-- END body -->
+        <div class="break"></div>
+    </div>
+{% endblock %}
