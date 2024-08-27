@@ -1,5 +1,8 @@
+import uuid
+
 from django.contrib.auth.models import AbstractUser
-from django.db.models import CharField, BooleanField, TextField, URLField, ForeignKey, CASCADE, ImageField, EmailField
+from django.db.models import CharField, BooleanField, TextField, URLField, ForeignKey, CASCADE, ImageField, EmailField, UUIDField
+
 
 from apps.account.choices import AccountRole
 from apps.shared.models import BaseModel
@@ -9,7 +12,9 @@ from django.utils.translation import gettext_lazy as _
 class Account(BaseModel, AbstractUser):
     email = EmailField(_("Email address"), unique=True)
     role = CharField(max_length=128, choices=AccountRole.choices, default=AccountRole.MEMBER)
+    activation_token = UUIDField(default=uuid.uuid4,unique=True)
     is_subscribe = BooleanField(default=False)
+    avatar = ImageField(upload_to="avatar/", null=True, blank=True)
 
 
 class Feed(BaseModel):

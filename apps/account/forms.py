@@ -1,10 +1,17 @@
-from django.core import cache
+
+import random
+
+from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.forms import Form, ModelForm, CharField, PasswordInput
 from django.template.loader import render_to_string
+from django.utils.crypto import get_random_string
 
 from apps.account.models import Account, Feed
 from apps.account.tasks import send_email_task
+
+
+# from apps.account.tasks import send_email_task
 
 
 class SubscribeForm(ModelForm):
@@ -21,21 +28,29 @@ class SubscribeForm(ModelForm):
         user.is_subscribe = True
         user.is_active = False
         user.save()
+
+        verification_code=random.randrange(100000, 1000000)
+        print(verification_code)
+
+        cache.set(f'verification_code_{user.email}', verification_code, timeout=300)
+
         message = render_to_string(
             "account/email.html",
-            context={"domain": "127.0.0.1:8000",  "user": user}
+            context={"domain": "127.0.0.1:8000", "user": user, "verification_code": verification_code}
         )
-        cache
+
+        # Email yuborish
         send_email_task.delay(
             subject="Welcome to p24_news.com",
             message=message,
             recipient_list=[user.email]
         )
+
         return user
 
     class Meta:
         model = Account
-        fields = ("first_name", "last_name", "username", "email", "password", "confirm_password",)
+        fields = ("first_name", "last_name", "username", "email", "avatar", "password", "confirm_password",)
 
 
 class FeedForm(ModelForm):

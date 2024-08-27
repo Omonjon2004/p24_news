@@ -1,6 +1,11 @@
- {% autoescape off %}
-     Hi {{ user.username }},
-     Please click on the link to confirm your registration
+{% autoescape off %}
+    Hi {{ user.username }},
+    Please enter the following code on the verification page to confirm your registration:
+    
+    Verification code: {{ verification_code }}
 
-     http://{{ domain }}{% url 'account:activate' token=user.password %}
- {% endautoescape %}
+    Or click the following link to verify your account:
+    http://{{ domain }}{% url 'account:verify' %}
+{% endautoescape %}
+
+

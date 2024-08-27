@@ -145,10 +145,10 @@ USE_TZ = True
 LOGIN_REDIRECT_URL = reverse_lazy('account:login')
 
 STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'static/'
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
+STATIC_ROOT = BASE_DIR / 'static'
 
-MEDIA_URL = 'media/'
-MEDIA_ROOT = BASE_DIR / 'media/'
 
 STATICFILES_DIRS = [
     BASE_DIR / 'staticfiles'
@@ -202,8 +202,9 @@ CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
         "LOCATION": "redis://127.0.0.1:6379",
-
     }
 }
+
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

@@ -3,7 +3,7 @@ from threading import activeCount
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Q
+from django.core.cache import cache
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views import View
 
@@ -31,7 +31,6 @@ class SubscribeView(View):
             }
             return render(request, "account/subscribe.html", context)
 
-
 class FeedView(LoginRequiredMixin, View):
     def get(self, request):
         form = FeedForm()
@@ -44,7 +43,6 @@ class FeedView(LoginRequiredMixin, View):
             messages.info(request, "You feed successfully created ")
         else:
             return render(request, "account/contact.html", {"form": form})
-
 
 class LoginView(View):
     def get(self, request):
@@ -67,17 +65,42 @@ class LoginView(View):
                 messages.warning(request, "With given data user not found")
                 return redirect("article:home")
 
-
 class LogoutView(LoginRequiredMixin, View):
     def get(self, request):
         logout(request)
         return redirect("article:home")
 
+# class ActivateView(View):
+#     def get(self, request, *args, **kwargs):
+#         token = kwargs.get('token')
+#         account = get_object_or_404(Account, activation_token=token)
+#         account.is_active = True
+#         account.save()
+#         messages.success(request, f"Your account has been successfully activated, {account.username}")
+#         return redirect("article:home")
 
-class ActivateView(View):
-    def get(self, request, token):
-        account = get_object_or_404(Account, password=token)
-        account.is_active=True
-        account.save()
-        messages.success(request, f"Your account successfully activated {account.username}")
-        return redirect("article:home")
+class VerifyView(View):
+    def get(self, request):
+        return render(request, 'account/verify.html')
+
+    def post(self, request):
+        email = request.POST.get('email')
+        entered_code = request.POST.get('code')
+
+
+        cached_code = cache.get(f'verification_code_{email}')
+
+        print(f'Email: {email}, Code: {entered_code}')
+        print(cached_code)
+
+        if  cached_code and cached_code == entered_code:
+            user = Account.objects.get(email=email)
+            user.is_active = True
+            user.save()
+            messages.success(request, "Your account has been activated successfully!")
+            return redirect('article:home')
+        else:
+            messages.error(request, "Invalid code")
+            return render(request, 'account/verify.html')
+
+
